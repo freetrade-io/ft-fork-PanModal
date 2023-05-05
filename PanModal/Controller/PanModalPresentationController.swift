@@ -173,7 +173,6 @@ open class PanModalPresentationController: UIPresentationController {
     }
 
     override public func presentationTransitionWillBegin() {
-
         guard let containerView = containerView
             else { return }
 
@@ -196,6 +195,13 @@ open class PanModalPresentationController: UIPresentationController {
         if completed { return }
 
         backgroundView.removeFromSuperview()
+    }
+
+    open override func containerViewDidLayoutSubviews() {
+        super.containerViewDidLayoutSubviews()
+        if presentable?.shouldRoundTopCorners ?? false {
+            addRoundedCorners(to: presentedView)
+        }
     }
 
     override public func dismissalTransitionWillBegin() {
