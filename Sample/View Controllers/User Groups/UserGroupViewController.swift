@@ -55,6 +55,8 @@ class UserGroupViewController: UITableViewController, PanModalPresentable {
         tableView.separatorStyle = .none
         tableView.backgroundColor = #colorLiteral(red: 0.1019607843, green: 0.1137254902, blue: 0.1294117647, alpha: 1)
         tableView.register(UserGroupMemberCell.self, forCellReuseIdentifier: "cell")
+        tableView.showsVerticalScrollIndicator = true
+        tableView.indicatorStyle = .white
     }
 
     // MARK: - UITableViewDataSource
@@ -98,7 +100,7 @@ class UserGroupViewController: UITableViewController, PanModalPresentable {
     }
 
     var scrollIndicatorInsets: UIEdgeInsets {
-        let bottomOffset = presentingViewController?.bottomLayoutGuide.length ?? 0
+        let bottomOffset = presentingViewController?.additionalSafeAreaInsets.bottom ?? 0
         return UIEdgeInsets(top: headerView.frame.size.height, left: 0, bottom: bottomOffset, right: 0)
     }
 
