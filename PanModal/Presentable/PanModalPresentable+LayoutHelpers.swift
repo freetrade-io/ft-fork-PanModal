@@ -27,11 +27,7 @@ extension PanModalPresentable where Self: UIViewController {
      Gives us the safe area inset from the top.
      */
     var topLayoutOffset: CGFloat {
-
-        guard let rootVC = rootViewController
-            else { return 0}
-
-        if #available(iOS 11.0, *) { return rootVC.view.safeAreaInsets.top } else { return rootVC.topLayoutGuide.length }
+        rootViewController?.view.safeAreaInsets.top ?? 0
     }
 
     /**
@@ -39,11 +35,7 @@ extension PanModalPresentable where Self: UIViewController {
      Gives us the safe area inset from the bottom.
      */
     var bottomLayoutOffset: CGFloat {
-
-       guard let rootVC = rootViewController
-            else { return 0}
-
-        if #available(iOS 11.0, *) { return rootVC.view.safeAreaInsets.bottom } else { return rootVC.bottomLayoutGuide.length }
+        rootViewController?.view.safeAreaInsets.bottom ?? 0
     }
 
     /**
@@ -103,7 +95,17 @@ extension PanModalPresentable where Self: UIViewController {
             view.layoutIfNeeded()
             let targetSize = CGSize(width: (presentedVC?.containerView?.bounds ?? UIScreen.main.bounds).width,
                                     height: UIView.layoutFittingCompressedSize.height)
-            let intrinsicHeight = view.systemLayoutSizeFitting(targetSize).height
+
+            let intrinsicSizeIncludeSafeArea = view.systemLayoutSizeFitting(targetSize)
+
+            // Initially the view has no safe area, as it's not positioned in an area that would require it. However,
+            // in an intermediate layout pass it gains a safe area, which makes this height bigger than it should be. As
+            // we already adjust for safe area here (bottomLayoutOffset), we should subtract the views safe area from
+            // itself.
+            // Assuming the view we're using is constraining its children to the safe area.
+            let safeAreaHeight = (view.safeAreaInsets.top + view.safeAreaInsets.bottom)
+            let intrinsicHeight = intrinsicSizeIncludeSafeArea.height - safeAreaHeight
+
             return bottomYPos - (intrinsicHeight + bottomLayoutOffset)
         }
     }

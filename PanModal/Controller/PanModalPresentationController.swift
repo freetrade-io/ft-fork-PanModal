@@ -173,7 +173,6 @@ open class PanModalPresentationController: UIPresentationController {
     }
 
     override public func presentationTransitionWillBegin() {
-
         guard let containerView = containerView
             else { return }
 
@@ -196,6 +195,13 @@ open class PanModalPresentationController: UIPresentationController {
         if completed { return }
 
         backgroundView.removeFromSuperview()
+    }
+
+    open override func containerViewDidLayoutSubviews() {
+        super.containerViewDidLayoutSubviews()
+        if presentable?.shouldRoundTopCorners ?? false {
+            addRoundedCorners(to: presentedView)
+        }
     }
 
     override public func dismissalTransitionWillBegin() {
@@ -379,6 +385,11 @@ private extension PanModalPresentationController {
         }
         panContainerView.frame.origin.x = frame.origin.x
         presentedViewController.view.frame = CGRect(origin: .zero, size: adjustedSize)
+
+        // Give presentedViewController a chance to move its views above the safe area, if they are constrained to it
+        presentedViewController.view.setNeedsLayout()
+        presentedViewController.view.layoutIfNeeded()
+
     }
 
     /**
@@ -454,15 +465,13 @@ private extension PanModalPresentationController {
          Set the appropriate contentInset as the configuration within this class
          offsets it
          */
-        scrollView.contentInset.bottom = presentingViewController.bottomLayoutGuide.length
+        scrollView.contentInset.bottom = presentingViewController.view.safeAreaInsets.bottom
 
         /**
          As we adjust the bounds during `handleScrollViewTopBounce`
          we should assume that contentInsetAdjustmentBehavior will not be correct
          */
-        if #available(iOS 11.0, *) {
-            scrollView.contentInsetAdjustmentBehavior = .never
-        }
+        scrollView.contentInsetAdjustmentBehavior = .never
     }
 
 }
